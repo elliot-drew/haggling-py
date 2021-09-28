@@ -238,7 +238,7 @@ haggling    </h1>
     	<span class="c1"># set the state to this users state at time of version/action</span>
     	<span class="n">offer</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
     	<span class="c1"># update private info if user has it</span>
-    	<span class="n">offer</span><span class="o">.</span><span class="n">private_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">private_info</span>
+    	<span class="n">offer</span><span class="o">.</span><span class="n">private_info</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">private_info</span><span class="p">)</span>
     	<span class="c1"># set the user_id of Offer to this users id</span>
     	<span class="n">offer</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span>
     	<span class="c1"># set offer version to current version then increment curr_version</span>
@@ -613,21 +613,29 @@ haggling    </h1>
 <span class="sd">		</span>
 <span class="sd">		Raises:</span>
 <span class="sd">		    ValueError: if the user ids supplied are not present in the Haggler.users dict</span>
+<span class="sd">		    AttributeError/TypeError: if private_info not a dict</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="k">if</span> <span class="n">user_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-			<span class="c1"># private data update one sided - no need for u2/other</span>
-			<span class="n">u1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">[</span><span class="n">user_id</span><span class="p">]</span>
+			<span class="c1"># want to check if private_info is actually a dict</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">private_info</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+			<span class="k">except</span><span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+				<span class="k">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
 
-			<span class="c1"># dont care about endpoint or current state</span>
+				<span class="c1"># private data update one sided - no need for u2/other</span>
+				<span class="n">u1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">[</span><span class="n">user_id</span><span class="p">]</span>
 
-			<span class="n">offer</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">u1</span><span class="o">.</span><span class="n">current_offer</span><span class="p">)</span>
-			<span class="n">offer</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;UpdatePrivateData&quot;</span>
-			<span class="n">offer</span><span class="o">.</span><span class="n">user_action</span> <span class="o">=</span> <span class="n">user_id</span>
+				<span class="c1"># dont care about endpoint or current state</span>
 
-			<span class="n">u1</span><span class="o">.</span><span class="n">updatePrivateInfo</span><span class="p">(</span><span class="n">private_info</span><span class="p">)</span>
+				<span class="n">offer</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">u1</span><span class="o">.</span><span class="n">current_offer</span><span class="p">)</span>
+				<span class="n">offer</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;UpdatePrivateData&quot;</span>
+				<span class="n">offer</span><span class="o">.</span><span class="n">user_action</span> <span class="o">=</span> <span class="n">user_id</span>
 
-			<span class="n">u1</span><span class="o">.</span><span class="n">addOfferHistory</span><span class="p">(</span><span class="n">offer</span><span class="p">)</span>
-			<span class="k">return</span>
+				<span class="n">u1</span><span class="o">.</span><span class="n">updatePrivateInfo</span><span class="p">(</span><span class="n">private_info</span><span class="p">)</span>
+
+				<span class="n">u1</span><span class="o">.</span><span class="n">addOfferHistory</span><span class="p">(</span><span class="n">offer</span><span class="p">)</span>
+				<span class="k">return</span>
 		<span class="k">else</span><span class="p">:</span>
 			<span class="k">try</span><span class="p">:</span>
 				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error: {0} is not a valid user in this Haggler.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_id</span><span class="p">))</span>
@@ -1032,7 +1040,7 @@ haggling    </h1>
     	<span class="c1"># set the state to this users state at time of version/action</span>
     	<span class="n">offer</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
     	<span class="c1"># update private info if user has it</span>
-    	<span class="n">offer</span><span class="o">.</span><span class="n">private_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">private_info</span>
+    	<span class="n">offer</span><span class="o">.</span><span class="n">private_info</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">private_info</span><span class="p">)</span>
     	<span class="c1"># set the user_id of Offer to this users id</span>
     	<span class="n">offer</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span>
     	<span class="c1"># set offer version to current version then increment curr_version</span>
@@ -1171,7 +1179,7 @@ Other attributes defined when <a href="#Haggler.submit">Haggler.submit</a> is ca
     	<span class="c1"># set the state to this users state at time of version/action</span>
     	<span class="n">offer</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
     	<span class="c1"># update private info if user has it</span>
-    	<span class="n">offer</span><span class="o">.</span><span class="n">private_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">private_info</span>
+    	<span class="n">offer</span><span class="o">.</span><span class="n">private_info</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">private_info</span><span class="p">)</span>
     	<span class="c1"># set the user_id of Offer to this users id</span>
     	<span class="n">offer</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_id</span>
     	<span class="c1"># set offer version to current version then increment curr_version</span>
@@ -1673,21 +1681,29 @@ offer history, updates the current offer and increments the current version.</p>
 <span class="sd">		</span>
 <span class="sd">		Raises:</span>
 <span class="sd">		    ValueError: if the user ids supplied are not present in the Haggler.users dict</span>
+<span class="sd">		    AttributeError/TypeError: if private_info not a dict</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="k">if</span> <span class="n">user_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-			<span class="c1"># private data update one sided - no need for u2/other</span>
-			<span class="n">u1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">[</span><span class="n">user_id</span><span class="p">]</span>
+			<span class="c1"># want to check if private_info is actually a dict</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">private_info</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+			<span class="k">except</span><span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+				<span class="k">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
 
-			<span class="c1"># dont care about endpoint or current state</span>
+				<span class="c1"># private data update one sided - no need for u2/other</span>
+				<span class="n">u1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">[</span><span class="n">user_id</span><span class="p">]</span>
 
-			<span class="n">offer</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">u1</span><span class="o">.</span><span class="n">current_offer</span><span class="p">)</span>
-			<span class="n">offer</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;UpdatePrivateData&quot;</span>
-			<span class="n">offer</span><span class="o">.</span><span class="n">user_action</span> <span class="o">=</span> <span class="n">user_id</span>
+				<span class="c1"># dont care about endpoint or current state</span>
 
-			<span class="n">u1</span><span class="o">.</span><span class="n">updatePrivateInfo</span><span class="p">(</span><span class="n">private_info</span><span class="p">)</span>
+				<span class="n">offer</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">u1</span><span class="o">.</span><span class="n">current_offer</span><span class="p">)</span>
+				<span class="n">offer</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;UpdatePrivateData&quot;</span>
+				<span class="n">offer</span><span class="o">.</span><span class="n">user_action</span> <span class="o">=</span> <span class="n">user_id</span>
 
-			<span class="n">u1</span><span class="o">.</span><span class="n">addOfferHistory</span><span class="p">(</span><span class="n">offer</span><span class="p">)</span>
-			<span class="k">return</span>
+				<span class="n">u1</span><span class="o">.</span><span class="n">updatePrivateInfo</span><span class="p">(</span><span class="n">private_info</span><span class="p">)</span>
+
+				<span class="n">u1</span><span class="o">.</span><span class="n">addOfferHistory</span><span class="p">(</span><span class="n">offer</span><span class="p">)</span>
+				<span class="k">return</span>
 		<span class="k">else</span><span class="p">:</span>
 			<span class="k">try</span><span class="p">:</span>
 				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error: {0} is not a valid user in this Haggler.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_id</span><span class="p">))</span>
@@ -2336,21 +2352,29 @@ state.</p>
 <span class="sd">		</span>
 <span class="sd">		Raises:</span>
 <span class="sd">		    ValueError: if the user ids supplied are not present in the Haggler.users dict</span>
+<span class="sd">		    AttributeError/TypeError: if private_info not a dict</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="k">if</span> <span class="n">user_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-			<span class="c1"># private data update one sided - no need for u2/other</span>
-			<span class="n">u1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">[</span><span class="n">user_id</span><span class="p">]</span>
+			<span class="c1"># want to check if private_info is actually a dict</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">private_info</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+			<span class="k">except</span><span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+				<span class="k">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
 
-			<span class="c1"># dont care about endpoint or current state</span>
+				<span class="c1"># private data update one sided - no need for u2/other</span>
+				<span class="n">u1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">[</span><span class="n">user_id</span><span class="p">]</span>
 
-			<span class="n">offer</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">u1</span><span class="o">.</span><span class="n">current_offer</span><span class="p">)</span>
-			<span class="n">offer</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;UpdatePrivateData&quot;</span>
-			<span class="n">offer</span><span class="o">.</span><span class="n">user_action</span> <span class="o">=</span> <span class="n">user_id</span>
+				<span class="c1"># dont care about endpoint or current state</span>
 
-			<span class="n">u1</span><span class="o">.</span><span class="n">updatePrivateInfo</span><span class="p">(</span><span class="n">private_info</span><span class="p">)</span>
+				<span class="n">offer</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">u1</span><span class="o">.</span><span class="n">current_offer</span><span class="p">)</span>
+				<span class="n">offer</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;UpdatePrivateData&quot;</span>
+				<span class="n">offer</span><span class="o">.</span><span class="n">user_action</span> <span class="o">=</span> <span class="n">user_id</span>
 
-			<span class="n">u1</span><span class="o">.</span><span class="n">addOfferHistory</span><span class="p">(</span><span class="n">offer</span><span class="p">)</span>
-			<span class="k">return</span>
+				<span class="n">u1</span><span class="o">.</span><span class="n">updatePrivateInfo</span><span class="p">(</span><span class="n">private_info</span><span class="p">)</span>
+
+				<span class="n">u1</span><span class="o">.</span><span class="n">addOfferHistory</span><span class="p">(</span><span class="n">offer</span><span class="p">)</span>
+				<span class="k">return</span>
 		<span class="k">else</span><span class="p">:</span>
 			<span class="k">try</span><span class="p">:</span>
 				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error: {0} is not a valid user in this Haggler.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_id</span><span class="p">))</span>
@@ -2369,7 +2393,8 @@ history of User with user_id. Preserves current private info unless explicitly o
     private_info (dict): private_info meta data</p>
 
 <p>Raises:
-    ValueError: if the user ids supplied are not present in the Haggler.users dict</p>
+    ValueError: if the user ids supplied are not present in the Haggler.users dict
+    AttributeError/TypeError: if private_info not a dict</p>
 </div>
 
 

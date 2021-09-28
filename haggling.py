@@ -489,6 +489,7 @@ class Haggler:
 		
 		Raises:
 		    ValueError: if the user ids supplied are not present in the Haggler.users dict
+		    AttributeError/TypeError: if private_info not a dict
 		"""
 		if user_id in self.users.keys():
 			# want to check if private_info is actually a dict

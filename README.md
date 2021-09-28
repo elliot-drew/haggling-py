@@ -1,8 +1,10 @@
 # Haggling module
 
-Module to allow haggling between two users.
+Python module to allow haggling between two users.
 
 In depth documentation from docstrings can be seen in `index.html`.
+
+Requires Python3.
 
 ## Usage
 

@@ -183,9 +183,21 @@ class BatmanSuperman(unittest.TestCase):
 		print("{0} History".format(buyer))
 		haggler.printHistory(buyer)
 
+	def test_private_data_2(self):
+		seller = "Batman"
+		buyer = "Superman"
+		haggler = Haggler(seller, buyer)
+		init_offer = Offer("Batmobile", 500, 5)
+		haggler.submit(buyer, seller, init_offer)
+		haggler.updatePrivateData(buyer, {"reference": "order123"})
+		haggler.updatePrivateData(buyer, {"reference2": "deux"})
+		haggler.accept(seller)	
 		
-		
+		buyer_v2 = haggler.returnVersion(buyer, 2)
+		buyer_v3 = haggler.returnVersion(buyer, 3)
 
+		# check private info is being updated and not leaking into other versions in the history
+		self.assertNotEqual(buyer_v2.private_info, buyer_v3.private_info)
 
 if __name__ == '__main__':
 	unittest.main()

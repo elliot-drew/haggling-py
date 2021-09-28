@@ -2,7 +2,7 @@
 
 Module to allow haggling between two users.
 
-In depth documentation from docstrings can be seen in `doc/haggling.html`.
+In depth documentation from docstrings can be seen in `index.html`.
 
 ## Usage
 
@@ -30,7 +30,7 @@ To start the haggling, use the submit method of Haggler to define who the buyer 
 haggler.submit(buyer, seller, init_offer)
 ``` 
 
-All actions are implemented as methods of the Haggler class. See docs for more info.
+All actions are implemented as methods of the Haggler class. See `index.html` for more info.
 
 
 You can print the history for a user as follows:

@@ -114,7 +114,7 @@ class User:
     	# set the state to this users state at time of version/action
     	offer.state = self.state
     	# update private info if user has it
-    	offer.private_info = self.private_info
+    	offer.private_info = copy.deepcopy(self.private_info)
     	# set the user_id of Offer to this users id
     	offer.user_id = self.user_id
     	# set offer version to current version then increment curr_version
@@ -491,19 +491,26 @@ class Haggler:
 		    ValueError: if the user ids supplied are not present in the Haggler.users dict
 		"""
 		if user_id in self.users.keys():
-			# private data update one sided - no need for u2/other
-			u1 = self.users[user_id]
+			# want to check if private_info is actually a dict
+			try:
+				private_info.keys()
+			except(AttributeError, TypeError) as error:
+				print(error)
+			else:
 
-			# dont care about endpoint or current state
+				# private data update one sided - no need for u2/other
+				u1 = self.users[user_id]
 
-			offer = copy.deepcopy(u1.current_offer)
-			offer.action = "UpdatePrivateData"
-			offer.user_action = user_id
+				# dont care about endpoint or current state
 
-			u1.updatePrivateInfo(private_info)
+				offer = copy.deepcopy(u1.current_offer)
+				offer.action = "UpdatePrivateData"
+				offer.user_action = user_id
 
-			u1.addOfferHistory(offer)
-			return
+				u1.updatePrivateInfo(private_info)
+
+				u1.addOfferHistory(offer)
+				return
 		else:
 			try:
 				raise ValueError("Error: {0} is not a valid user in this Haggler.".format(user_id))

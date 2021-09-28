@@ -11,7 +11,7 @@ Requires Python3.
 Import everything from haggler.py:
 
 ```
-from haggler import *
+from haggling import *
 ```
 
 Start by creating an instance of Haggler class. You must supply the names/ids of the two Users involved in the transaction as strings
